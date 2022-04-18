@@ -5,7 +5,7 @@ from src.main.python.etl import generate_hash_by_lat_lng
 
 class Testing(unittest.TestCase):
     def test_hash_generating(self):
-        pass
+        generate_hash_by_lat_lng("assa", "sdas")
 
     def test_get_spark_obj(self):
         pass
