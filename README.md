@@ -19,5 +19,6 @@ spark-submit \
     --name spark2 \
     --conf spark.executor.instances=3 \
     --conf spark.kubernetes.container.image=vmisiukevich/spark_img:latest \
-    C:/Spark/spark-3.1.3-bin-hadoop3.2/examples/src/main/python/pi.py
+    C:/Users/Uladzislau_Misiukevi/PycharmProjects/\
+    m06_sparkbasics_python_azure/src/main/python/etl.py
 ```
