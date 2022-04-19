@@ -4,7 +4,7 @@ terraform {
     resource_group_name  = "someTest"
     storage_account_name = "testchmutacc"
     container_name       = "new-terraform-container"
-    key                  = "lualNvZKBivPXbZR6a1inYYkHqy+IKBO0j1IvxkbzjuxdM6uDlIHVnG0511UGwUR48gmP85JcM/VZMt9cD11eA=="
+    key                  = "***"
   }
 }
 
