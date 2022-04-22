@@ -1,3 +1,4 @@
+import logging
 import os.path
 import sys
 from typing import Tuple, Union
@@ -8,6 +9,7 @@ from pyspark.sql import SparkSession, DataFrame, Column
 from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
 
+# from config import GEOCODER
 from src.main.python.config import GEOCODER
 
 
@@ -32,6 +34,14 @@ def get_spark_obj() -> SparkSession:
         .set("spark.executor.heartbeatInterval", "110s")
 
     return SparkSession.builder.config(conf=spark_conf).getOrCreate()
+
+
+def save_dataframe_to_adls(spark_session: SparkSession, df: DataFrame) -> None:
+    spark_session.conf.set(
+        "fs.azure.account.key.stvmisiukevich.dfs.core.windows.net",
+        "/OnHt5E7j+P0ok3ZkJuQSeTRqsvqy2YUkuySVzFS3GQzPcQQ6VB9TBHIzWNQHNtkc46QvVKSjr/qSvDaY3mI3Q=="
+    )
+    df.write.format("parquet").save("abfss://data@stvmisiukevich.dfs.core.windows.net/spark_hw")
 
 
 def get_dfs(spark_obj: SparkSession) -> Tuple[DataFrame, DataFrame]:
@@ -70,6 +80,7 @@ def generate_hash_by_lat_lng(lat: str, lng: str) -> Union[Column, None]:
 
 
 if __name__ == '__main__':
+    logger = logging.getLogger('py4j')
     spark = get_spark_obj()
     df_hotels, df_weather = get_dfs(spark)
     hotels_with_not_null_lat = df_hotels[df_hotels["Latitude"].isNotNull()]
@@ -98,6 +109,7 @@ if __name__ == '__main__':
             hotels_union["Longitude"],
         )
     )
+    logger.info("Dataframe 'hotels with geohash' created")
     df_weather_with_geohash = df_weather.withColumn(
         "Geohash",
         generate_hash_by_lat_lng(
@@ -105,6 +117,7 @@ if __name__ == '__main__':
             df_weather["lat"]
         )
     )
+    logger.info("Dataframe 'weather with geohash' created")
     df_weather_without_duplicates = df_weather_with_geohash.dropDuplicates(['Geohash'])
 
     df_result = df_hotels_with_geohash.join(
@@ -118,3 +131,5 @@ if __name__ == '__main__':
         df_weather_without_duplicates["avg_tmpr_c"],
         df_weather_without_duplicates["wthr_date"]
     )
+    logger.info("Dataframe with join tables created")
+    save_dataframe_to_adls(spark, df_result)

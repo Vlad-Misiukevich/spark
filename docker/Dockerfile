@@ -3,16 +3,16 @@ FROM openjdk:8-alpine
 ARG SPARK_VERSION_ARG=3.1.3
 ARG HADOOP_VERSION=3.2.2
 
-ENV BASE_IMAGE      openjdk:11-alpine
-ENV SPARK_VERSION   $SPARK_VERSION_ARG
+ENV BASE_IMAGE                openjdk:8-alpine
+ENV SPARK_VERSION             $SPARK_VERSION_ARG
 
-ENV SPARK_HOME      /opt/spark
-ENV HADOOP_HOME     /opt/hadoop
-ENV PATH            $PATH:$SPARK_HOME/bin
+ENV SPARK_HOME                /opt/spark
+ENV HADOOP_HOME               /opt/hadoop
+ENV PATH                      $PATH:$SPARK_HOME/bin
 
 RUN set -ex && \
     apk upgrade --no-cache && \
-    apk --update add --no-cache bash tini libstdc++ glib gcompat libc6-compat linux-pam krb5 krb5-libs nss openssl wget sed curl && \
+    apk --update add --no-cache bash tini libstdc++ glib gcompat libc6-compat linux-pam krb5 krb5-libs nss openssl wget sed curl python3-dev musl-dev libffi-dev && \
     rm /bin/sh && \
     ln -sv /bin/bash /bin/sh && \
     echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
@@ -43,7 +43,8 @@ RUN wget -O $SPARK_HOME/jars/azure-data-lake-store-sdk-2.3.6.jar https://repo1.m
 RUN wget -O $SPARK_HOME/jars/azure-keyvault-core-1.0.0.jar https://repo1.maven.org/maven2/com/microsoft/azure/azure-keyvault-core/1.0.0/azure-keyvault-core-1.0.0.jar
 RUN wget -O $SPARK_HOME/jars/azure-keyvault-core-1.0.0.jar https://repo1.maven.org/maven2/ch/hsr/geohash/1.4.0/geohash-1.4.0.jar
 
-COPY ./entrypoint.sh /opt/
+COPY ./docker/entrypoint.sh /opt/
+COPY ./src/main/python /opt/
 
 RUN chmod +x /opt/*.sh
 
@@ -53,7 +54,11 @@ RUN apk update && \
     # Removed the .cache to save space
     rm -rf /var/cache/apk/*
 
-WORKDIR /opt/spark/work-dir
+RUN apk update && \
+    apk add gcc && \
+    pip3 install opencage
+
+WORKDIR /opt/
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
 
 # Specify the User that the actual main process will run as
