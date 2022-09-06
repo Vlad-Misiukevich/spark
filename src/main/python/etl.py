@@ -22,15 +22,15 @@ def get_spark_obj() -> SparkSession:
         .setAppName(app_name) \
         .setMaster(master) \
         .set('spark.jars.packages', 'org.apache.hadoop:hadoop-azure:3.2.2') \
-        .set("fs.azure.account.auth.type.bd201stacc.dfs.core.windows.net", "OAuth") \
+        .set("fs.azure.account.auth.type.bd201stacc.dfs.core.windows.net", "*") \
         .set("fs.azure.account.oauth.provider.type.bd201stacc.dfs.core.windows.net",
-             "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider") \
+             "*") \
         .set("fs.azure.account.oauth2.client.secret.bd201stacc.dfs.core.windows.net",
-             "mAwIU~M4~xMYHi4YX_uT8qQ.ta2.LTYZxT") \
+             "*") \
         .set("fs.azure.account.oauth2.client.endpoint.bd201stacc.dfs.core.windows.net",
-             "https://login.microsoftonline.com/b41b72d0-4e9f-4c26-8a69-f949f367c91d/oauth2/token") \
+             "*") \
         .set("fs.azure.account.oauth2.client.id.bd201stacc.dfs.core.windows.net",
-             "f3905ff9-16d4-43ac-9011-842b661d556d") \
+             "*") \
         .set("spark.executor.heartbeatInterval", "110s")
 
     return SparkSession.builder.config(conf=spark_conf).getOrCreate()
@@ -39,7 +39,7 @@ def get_spark_obj() -> SparkSession:
 def save_dataframe_to_adls(spark_session: SparkSession, df: DataFrame) -> None:
     spark_session.conf.set(
         "fs.azure.account.key.stvmisiukevich.dfs.core.windows.net",
-        "/OnHt5E7j+P0ok3ZkJuQSeTRqsvqy2YUkuySVzFS3GQzPcQQ6VB9TBHIzWNQHNtkc46QvVKSjr/qSvDaY3mI3Q=="
+        "*"
     )
     df.write.format("parquet").save("abfss://data@stvmisiukevich.dfs.core.windows.net/spark_hw")
 
